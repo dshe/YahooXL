@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
@@ -12,7 +11,7 @@ using YahooFinanceApi;
 
 #nullable enable
 
-namespace RtdClock_Rx_Registration
+namespace YahooDelayedQuotesXLAddIn
 {
     public static class YahooXL
     {
@@ -51,7 +50,7 @@ namespace RtdClock_Rx_Registration
                 dynamic value = security[fieldName];
                 if (value == null)
                 {
-                    observer.OnNext(GetFieldNameOrNotFound(security, fieldName));
+                    observer.OnNext(Extensions.GetFieldNameOrNotFound(security, fieldName));
                     observer.OnCompleted();
                     return;
                 }
@@ -113,7 +112,7 @@ namespace RtdClock_Rx_Registration
                             observer.OnNext(value);
                             continue;
                         }
-                        observer.OnNext(GetFieldNameOrNotFound(security, fieldName));
+                        observer.OnNext(Extensions.GetFieldNameOrNotFound(security, fieldName));
                     }
                     else
                         observer.OnNext($"Symbol not found: \"{symbol}\".");
@@ -122,11 +121,5 @@ namespace RtdClock_Rx_Registration
                 }
             }
         }
-
-        private static string GetFieldNameOrNotFound(Security security, string fieldName) =>
-           int.TryParse(fieldName, out int i) ? GetFieldNameFromIndex(security, i) : $"Field not found: \"{fieldName}\".";
-
-        private static string GetFieldNameFromIndex(Security security, int index) => // slow!
-            security.Fields.Keys.OrderBy(k => k).ElementAtOrDefault(index) ?? $"Invalid field index: {index}.";
     }
 }

@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YahooFinanceApi;
 
 #nullable enable
 
-namespace YahooXL.Utilities
+namespace YahooDelayedQuotesXLAddIn
 {
-    static class Utility
+    internal static class Extensions
     {
-        internal static List<string> CaseInsensitiveDuplicates(this IEnumerable<string> strings)
-        {
-            var hashSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            return strings.Where(str => !hashSet.Add(str)).ToList();
-        }
+        internal static string GetFieldNameOrNotFound(Security security, string fieldName) =>
+           int.TryParse(fieldName, out int i) ? GetFieldNameFromIndex(security, i) : $"Field not found: \"{fieldName}\".";
+
+        private static string GetFieldNameFromIndex(Security security, int index) => // slow!
+            security.Fields.Keys.OrderBy(k => k).ElementAtOrDefault(index) ?? $"Invalid field index: {index}.";
 
     }
 }
