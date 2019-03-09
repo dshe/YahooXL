@@ -3,7 +3,7 @@ using ExcelDna.Registration;
 
 #nullable enable
 
-namespace YahooDelayedQuotesXLAddIn
+namespace YahooXL
 {
     public class RtdClockAddIn : IExcelAddIn
     {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -8,85 +9,109 @@ using System.Threading;
 using System.Threading.Tasks;
 using ExcelDna.Integration;
 using YahooFinanceApi;
+using System.Collections.Concurrent;
+// no cancellation
 
 #nullable enable
 
-namespace YahooDelayedQuotesXLAddIn
+namespace YahooXL
 {
-    public static class YahooXL
+    public static class YahooQuotesAddin
     {
-        private static readonly Dictionary<IObserver<dynamic>, (string symbol, string fieldName)> Observers = new Dictionary<IObserver<dynamic>, (string symbol, string fieldName)>();
         private static Dictionary<string, Security> Data = new Dictionary<string, Security>();
-        private static readonly SemaphoreSlim Semaphore = new SemaphoreSlim(0);
-        private static bool started = false;
+
+        private static readonly Dictionary<IObserver<dynamic>, (string symbol, string fieldName)> Observers =
+            new Dictionary<IObserver<dynamic>, (string symbol, string fieldName)>();
+
+        private static readonly AsyncBlockingCollection<(IObserver<dynamic> observer, string symbol, string fieldName)> ObserversToAdd =
+            new AsyncBlockingCollection<(IObserver<dynamic> observer, string symbol, string fieldName)>();
+
+        private static readonly ConcurrentBag<IObserver<dynamic>> ObserversToRemove = new ConcurrentBag<IObserver<dynamic>>();
+
+        private static int started = 0;
+
+        private static IDisposable disposable;
 
         [ExcelFunction(Description = "Yahoo Delayed Quotes")]
-        public static IObservable<dynamic> GetYahoo(string symbol, string fieldName)
+        public static IObservable<dynamic> YahooQuote([ExcelArgument("Symbol")] string symbol, [ExcelArgument("Field")] string fieldName)
         {
+            if (string.IsNullOrWhiteSpace(symbol))
+                return Observable.Return("Invalid symbol.");
+            if (string.IsNullOrWhiteSpace(fieldName))
+                return Observable.Return("Invalid field.");
+            bool found = Data.TryGetValue(symbol, out Security security);
+            dynamic? value = null;
+            if (found)
+            {
+                if (security == null)
+                    return Observable.Return($"Symbol not found: \"{symbol}\".");
+                value = security[fieldName];
+                if (value == null)
+                    return Observable.Return(Extensions.GetFieldNameOrNotFound(security, fieldName));
+            }
+
             return Observable.Create<dynamic>(observer => // executed once
             {
                 try
                 {
-                    AddObserver(observer, symbol, fieldName);
+                    if (value != null)
+                        observer.OnNext(value);
+
+                    ObserversToAdd.Add((observer, symbol, fieldName));
+
+                    if (Interlocked.CompareExchange(ref started, 1, 0) == 0)
+                        //disposable = NewThreadScheduler.Default.ScheduleAsync(RefreshLoop);
+                        disposable = CurrentThreadScheduler.Instance.ScheduleAsync(RefreshLoop);
                 }
                 catch (Exception e)
                 {
+                    Debug.WriteLine(e.ToString());
                     observer.OnError(e);
                 }
-                return Disposable.Create(() => Observers.Remove(observer));
+                return Disposable.Create(() => ObserversToRemove.Add(observer));
             });
         }
-        private static void AddObserver(IObserver<dynamic> observer, string symbol, string fieldName)
+
+        private static async Task RefreshLoop(IScheduler scheduler, CancellationToken ct)
         {
-            bool found = Data.TryGetValue(symbol, out Security security);
-            if (found)
-            {
-                if (security == null)
-                {
-                    observer.OnNext($"Symbol not found: \"{symbol}\".");
-                    observer.OnCompleted();
-                    return;
-                }
-                dynamic value = security[fieldName];
-                if (value == null)
-                {
-                    observer.OnNext(Extensions.GetFieldNameOrNotFound(security, fieldName));
-                    observer.OnCompleted();
-                    return;
-                }
-                observer.OnNext(value);
-            }
-
-            Observers.Add(observer, (symbol, fieldName));
-
-            //if (Interlocked.CompareExchange(ref started, 1, 0) == 0)
-            if (!started)
-                ImmediateScheduler.Instance.ScheduleAsync(RefreshLoop);
-
-            if (!found)
-                Semaphore.Release();
-        }
-
-        private async static Task RefreshLoop(IScheduler scheduler, CancellationToken ct)
-        {
-            started = true;
             try
             {
-                while (Observers.Any())
+                Debug.WriteLine("starting loop");
+                while (true)
                 {
-                    await Semaphore.WaitAsync(30000, ct).ConfigureAwait(false);
+                    var wait = TimeSpan.FromSeconds(30);
+                    while (true)
+                    {
+                        var (Take, Item) = await ObserversToAdd.TryTakeAsync(wait, ct).ConfigureAwait(false);
+                        if (!Take)
+                            break;
+                        Debug.WriteLine("adding: " + Item.symbol + ", " + Item.fieldName);
+                        Observers.Add(Item.observer, (Item.symbol, Item.fieldName));
+                        wait = TimeSpan.FromSeconds(1);
+                    }
+                    Debug.WriteLine("updating");
                     await Update(ct).ConfigureAwait(false);
                 }
             }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.ToString());
+            }
             finally
             {
-                //Interlocked.Exchange(ref started, 0);
-                started = false;
+                Debug.WriteLine("ending");
+                Interlocked.Exchange(ref started, 0);
             }
         }
 
         private static async Task Update(CancellationToken ct)
         {
+            while (ObserversToRemove.TryTake(out IObserver<dynamic> observer))
+                Observers.Remove(observer);
+
+            if (!Observers.Any())
+                return;
+
             var symbolGroups = Observers
                 .Select(kvp => (kvp.Value.symbol, kvp.Value.fieldName, kvp.Key))
                 .GroupBy(x => x.symbol, StringComparer.InvariantCultureIgnoreCase)
@@ -94,7 +119,7 @@ namespace YahooDelayedQuotesXLAddIn
 
             var symbols = symbolGroups.Select(g => g.Key).ToList();
 
-            Data = await new YahooQuotes(ct).GetAsync(symbols).ConfigureAwait(false);
+            Data = await new YahooFinanceApi.YahooQuotes(ct).GetAsync(symbols).ConfigureAwait(false);
 
             foreach (var group in symbolGroups)
             {

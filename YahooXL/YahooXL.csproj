@@ -7,7 +7,7 @@
     <ProjectGuid>{6B1C2A34-1C5F-486A-9226-BDF67C303500}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>YahooDelayedQuotesXLAddIn</RootNamespace>
+    <RootNamespace>YahooXL</RootNamespace>
     <AssemblyName>YahooXL</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -78,7 +78,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
     <Reference Include="YahooFinanceApi, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\YahooFinanceApi.3.0.0-beta1\lib\netstandard2.0\YahooFinanceApi.dll</HintPath>
+      <HintPath>..\packages\YahooFinanceApi.3.0.0-beta2\lib\netstandard2.0\YahooFinanceApi.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

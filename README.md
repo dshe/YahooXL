@@ -1,2 +1,0 @@
-## YahooXL
-The Excel-DNA Registration extension library allows for custom registration extensions, including autoomatic registration of async and IObservable functions. This project shows how the registration of Rx / IObservable functions can be automatically done, exhibiting the cleanest minimal implementation of an RTD function.
