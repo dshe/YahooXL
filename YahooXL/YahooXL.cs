@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using ExcelDna.Integration;
 using YahooFinanceApi;
 using System.Collections.Concurrent;
-// no cancellation
 
 #nullable enable
 
@@ -18,39 +17,39 @@ namespace YahooXL
 {
     public static class YahooQuotesAddin
     {
+        private static readonly IScheduler Scheduler = NewThreadScheduler.Default; // CurrentThreadScheduler.Instance;
+
+        private static readonly Dictionary<IObserver<object>, (string symbol, string fieldName)> Observers =
+            new Dictionary<IObserver<object>, (string symbol, string fieldName)>();
+
+        private static readonly AsyncBlockingCollection<(IObserver<object> observer, string symbol, string fieldName)> ObserversToAdd =
+            new AsyncBlockingCollection<(IObserver<object> observer, string symbol, string fieldName)>();
+
+        private static readonly ConcurrentBag<IObserver<object>> ObserversToRemove = new ConcurrentBag<IObserver<object>>();
+
         private static Dictionary<string, Security> Data = new Dictionary<string, Security>();
 
-        private static readonly Dictionary<IObserver<dynamic>, (string symbol, string fieldName)> Observers =
-            new Dictionary<IObserver<dynamic>, (string symbol, string fieldName)>();
-
-        private static readonly AsyncBlockingCollection<(IObserver<dynamic> observer, string symbol, string fieldName)> ObserversToAdd =
-            new AsyncBlockingCollection<(IObserver<dynamic> observer, string symbol, string fieldName)>();
-
-        private static readonly ConcurrentBag<IObserver<dynamic>> ObserversToRemove = new ConcurrentBag<IObserver<dynamic>>();
-
         private static int started = 0;
-
         private static IDisposable disposable;
 
         [ExcelFunction(Description = "Yahoo Delayed Quotes")]
-        public static IObservable<dynamic> YahooQuote([ExcelArgument("Symbol")] string symbol, [ExcelArgument("Field")] string fieldName)
+        public static IObservable<object> YahooQuote([ExcelArgument("Symbol")] string symbol, [ExcelArgument("Field")] string fieldName)
         {
             if (string.IsNullOrWhiteSpace(symbol))
                 return Observable.Return("Invalid symbol.");
             if (string.IsNullOrWhiteSpace(fieldName))
-                return Observable.Return("Invalid field.");
+                fieldName = "RegularMarketPrice";
             bool found = Data.TryGetValue(symbol, out Security security);
-            dynamic? value = null;
+            object? value = null;
             if (found)
             {
                 if (security == null)
                     return Observable.Return($"Symbol not found: \"{symbol}\".");
-                value = security[fieldName];
-                if (value == null)
+                if (!security.Fields.TryGetValue(fieldName, out value))
                     return Observable.Return(Extensions.GetFieldNameOrNotFound(security, fieldName));
             }
 
-            return Observable.Create<dynamic>(observer => // executed once
+            return Observable.Create<object>(observer => // executed once
             {
                 try
                 {
@@ -60,8 +59,7 @@ namespace YahooXL
                     ObserversToAdd.Add((observer, symbol, fieldName));
 
                     if (Interlocked.CompareExchange(ref started, 1, 0) == 0)
-                        //disposable = NewThreadScheduler.Default.ScheduleAsync(RefreshLoop);
-                        disposable = CurrentThreadScheduler.Instance.ScheduleAsync(RefreshLoop);
+                        disposable = Scheduler.ScheduleAsync(RefreshLoop);
                 }
                 catch (Exception e)
                 {
@@ -71,6 +69,8 @@ namespace YahooXL
                 return Disposable.Create(() => ObserversToRemove.Add(observer));
             });
         }
+
+
 
         private static async Task RefreshLoop(IScheduler scheduler, CancellationToken ct)
         {
@@ -106,7 +106,7 @@ namespace YahooXL
 
         private static async Task Update(CancellationToken ct)
         {
-            while (ObserversToRemove.TryTake(out IObserver<dynamic> observer))
+            while (ObserversToRemove.TryTake(out IObserver<object> observer))
                 Observers.Remove(observer);
 
             if (!Observers.Any())
@@ -119,7 +119,7 @@ namespace YahooXL
 
             var symbols = symbolGroups.Select(g => g.Key).ToList();
 
-            Data = await new YahooFinanceApi.YahooQuotes(ct).GetAsync(symbols).ConfigureAwait(false);
+            Data = await new YahooQuotes(null, ct).GetAsync(symbols).ConfigureAwait(false);
 
             foreach (var group in symbolGroups)
             {
@@ -131,8 +131,7 @@ namespace YahooXL
                     var observer = cell.Key;
                     if (security != null)
                     {
-                        dynamic? value = security[fieldName];
-                        if (value != null)
+                        if (security.Fields.TryGetValue(fieldName, out object? value))
                         {
                             observer.OnNext(value);
                             continue;
@@ -146,5 +145,6 @@ namespace YahooXL
                 }
             }
         }
+
     }
 }

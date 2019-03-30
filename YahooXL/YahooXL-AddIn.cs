@@ -11,9 +11,11 @@ namespace YahooXL
         {
             // Since we have specified ExplicitRegistration=true in the .dna file, we need to do all registration explicitly.
             // Here we only add the async processing, which applies to our IObservable function.
+
             ExcelRegistration.GetExcelFunctions()
                              .ProcessAsyncRegistrations()
                              .RegisterFunctions();
+
             ExcelRegistration.GetExcelCommands().RegisterCommands();
         }
 
