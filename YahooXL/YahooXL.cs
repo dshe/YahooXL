@@ -8,7 +8,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ExcelDna.Integration;
-using YahooFinanceApi;
+using YahooQuotesApi;
 using System.Collections.Concurrent;
 
 #nullable enable
@@ -27,10 +27,10 @@ namespace YahooXL
 
         private static readonly ConcurrentBag<IObserver<object>> ObserversToRemove = new ConcurrentBag<IObserver<object>>();
 
-        private static Dictionary<string, Security> Data = new Dictionary<string, Security>();
+        private static Dictionary<string, Security?> Data = new Dictionary<string, Security?>();
 
         private static int started = 0;
-        private static IDisposable disposable;
+        private static IDisposable? disposable;
 
         [ExcelFunction(Description = "Yahoo Delayed Quotes")]
         public static IObservable<object> YahooQuote([ExcelArgument("Symbol")] string symbol, [ExcelArgument("Field")] string fieldName)
@@ -39,7 +39,7 @@ namespace YahooXL
                 return Observable.Return("Invalid symbol.");
             if (string.IsNullOrWhiteSpace(fieldName))
                 fieldName = "RegularMarketPrice";
-            bool found = Data.TryGetValue(symbol, out Security security);
+            bool found = Data.TryGetValue(symbol, out Security? security);
             object? value = null;
             if (found)
             {
@@ -119,7 +119,7 @@ namespace YahooXL
 
             var symbols = symbolGroups.Select(g => g.Key).ToList();
 
-            Data = await new YahooQuotes(null, ct).GetAsync(symbols).ConfigureAwait(false);
+            Data = await new YahooSnapshot(null, ct).GetAsync(symbols).ConfigureAwait(false);
 
             foreach (var group in symbolGroups)
             {

@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using YahooFinanceApi;
+using YahooQuotesApi;
 
 #nullable enable
 

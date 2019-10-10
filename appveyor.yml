@@ -1,0 +1,18 @@
+environment:
+  base_version: '1.0.0'
+  version_suffix: '-alpha'
+version: $(base_version).{build}
+image: Visual Studio 2019
+configuration: Release
+before_build:
+    - ps: nuget restore .\YahooXL.sln
+build:
+    project: .\YahooXL.sln
+  verbosity: minimal
+  publish_nuget: true
+nuget:
+  account_feed: false
+  project_feed: true
+  disable_publish_on_pr: true
+artifacts:
+- path: '**\*.nupkg'
