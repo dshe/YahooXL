@@ -10,4 +10,4 @@ build:
   project: .\YahooXL.sln
   verbosity: minimal
 artifacts:
-- path: '.\YahooXL\bin\Release\*.*'
+- path: bin\Release\*.*
