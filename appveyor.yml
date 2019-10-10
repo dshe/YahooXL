@@ -7,7 +7,7 @@ configuration: Release
 before_build:
     - ps: nuget restore .\YahooXL.sln
 build:
-    project: .\YahooXL.sln
+  project: .\YahooXL.sln
   verbosity: minimal
   publish_nuget: true
 nuget:
