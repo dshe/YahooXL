@@ -9,10 +9,5 @@ before_build:
 build:
   project: .\YahooXL.sln
   verbosity: minimal
-  publish_nuget: true
-nuget:
-  account_feed: false
-  project_feed: true
-  disable_publish_on_pr: true
 artifacts:
-- path: '**\YahooXL.nupkg'
+- path: '.\YahooXL\bin\Release\*.*'
