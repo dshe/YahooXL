@@ -12,4 +12,3 @@ build:
 artifacts:
 - path: bin\Release\*.*
   name: releasex
-  type: zip
