@@ -11,7 +11,8 @@ Dependencies: YahooQuotesApi, ExcelDna, Reactive Extensions, NodaTime.
 Runtime: 
   - Download Package.zip from the GitHub release. 
   - Extract files to a folder.
-  - Execute "YahooXL-AddIn64.xll" to start Microsoft Excel.
+  - Double-click on "YahooXL-AddIn64.xll" to start 64-bit Excel with YahooXL loaded.
+  - Double-click on "YahooXL-AddIn.xll" to start 32-bit Excel with YahooXL loaded.
   - Open a blank spreadsheet.
   - Type in a cell: =YahooQuote("C", "RegularMarketPrice")
   
