@@ -13,7 +13,7 @@ build:
   project: .\YahooXL.sln
   verbosity: minimal
 after_build:
-  - cmd: 7z a myapp.zip %APPVEYOR_BUILD_FOLDER%\YahooXL\bin\Release\*.*
+  - cmd: 7z a Package.zip %APPVEYOR_BUILD_FOLDER%\YahooXL\bin\Release\*.*
 artifacts:
-- path: myapp.zip
-  name: MyApp
+- path: Package.zip
+  name: Package
