@@ -3,9 +3,16 @@
 ***Microsoft Excel add-in which retrieves data from Yahoo Finance.***
 
 - retrieves quote snapshots
-- retrieves quote, dividend, and split history
 - fluent interface
 - tested
-- fast
 
 Dependencies: YahooQuotesApi, ExcelDna, Reactive Extensions, NodaTime.
+
+Runtime: 
+  - Download Package.zip from the GitHub release. 
+  - Extract files to a folder.
+  - Execute "YahooXL-AddIn64.xll" to start Microsoft Excel.
+  - Open a blank spreadsheet.
+  - Type in a cell: =YahooQuote("C", "RegularMarketPrice")
+  
+  It may be required to relax Excel macro and protected view security settings.
