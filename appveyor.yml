@@ -10,7 +10,7 @@ build:
   project: .\YahooXL.sln
   verbosity: minimal
 artifacts:
-- path: bin\Release\*.*
+- path: 'bin\Release\*.*'
 - type: zip
 
 
