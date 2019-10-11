@@ -4,11 +4,14 @@ environment:
 version: $(base_version).{build}
 image: Visual Studio 2019
 configuration: Release
+branches:
+  only:
+  - master
 before_build:
     - ps: nuget restore .\YahooXL.sln
 build:
   project: .\YahooXL.sln
   verbosity: minimal
 artifacts:
-- path: bin\Release\*.*
-  name: releasex
+- path: bin\Release
+  name: myrelease
