@@ -11,3 +11,6 @@ build:
   verbosity: minimal
 artifacts:
 - path: bin\Release\*.*
+- type: zip
+
+
