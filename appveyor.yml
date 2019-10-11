@@ -11,6 +11,5 @@ build:
   verbosity: minimal
 artifacts:
 - path: 'bin\Release\*.*'
-- type: zip
-
-
+  name: releasex
+  type: zip
