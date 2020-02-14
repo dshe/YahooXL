@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using ExcelDna.Integration;
 using YahooQuotesApi;
 using System.Collections.Concurrent;
+using System.Reflection;
 
 #nullable enable
 
@@ -36,11 +37,11 @@ namespace YahooXL
         public static IObservable<object> YahooQuote([ExcelArgument("Symbol")] string symbol, [ExcelArgument("Field")] string fieldName)
         {
             if (string.IsNullOrWhiteSpace(symbol))
-                return Observable.Return("Invalid symbol.");
+                return Observable.Return(Assembly.GetExecutingAssembly().GetName().ToString());
             if (string.IsNullOrWhiteSpace(fieldName))
                 fieldName = "RegularMarketPrice";
             bool found = Data.TryGetValue(symbol, out Security? security);
-            object? value = null;
+            object? value = "...";
             if (found)
             {
                 if (security == null)
@@ -53,8 +54,7 @@ namespace YahooXL
             {
                 try
                 {
-                    if (value != null)
-                        observer.OnNext(value);
+                    observer.OnNext(value);
 
                     ObserversToAdd.Add((observer, symbol, fieldName));
 
@@ -69,8 +69,6 @@ namespace YahooXL
                 return Disposable.Create(() => ObserversToRemove.Add(observer));
             });
         }
-
-
 
         private static async Task RefreshLoop(IScheduler scheduler, CancellationToken ct)
         {
@@ -119,7 +117,7 @@ namespace YahooXL
 
             var symbols = symbolGroups.Select(g => g.Key).ToList();
 
-            Data = await new YahooSnapshot(null, ct).GetAsync(symbols).ConfigureAwait(false);
+            Data = await new YahooSnapshot(ct).GetAsync(symbols).ConfigureAwait(false);
 
             foreach (var group in symbolGroups)
             {
@@ -129,17 +127,15 @@ namespace YahooXL
                 {
                     var fieldName = cell.fieldName;
                     var observer = cell.Key;
-                    if (security != null)
-                    {
-                        if (security.Fields.TryGetValue(fieldName, out object? value))
-                        {
-                            observer.OnNext(value);
-                            continue;
-                        }
-                        observer.OnNext(Extensions.GetFieldNameOrNotFound(security, fieldName));
-                    }
-                    else
+                    if (security == null)
                         observer.OnNext($"Symbol not found: \"{symbol}\".");
+                    else if (!security.Fields.TryGetValue(fieldName, out object? value))
+                        observer.OnNext(Extensions.GetFieldNameOrNotFound(security, fieldName));
+                    else
+                    {
+                        observer.OnNext(value);
+                        continue;
+                    }
                     observer.OnCompleted();
                     Observers.Remove(observer);
                 }
