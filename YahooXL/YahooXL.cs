@@ -12,26 +12,25 @@ using YahooQuotesApi;
 using System.Collections.Concurrent;
 using System.Reflection;
 
-#nullable enable
-
 namespace YahooXL
 {
     public static class YahooQuotesAddin
     {
-        private static readonly IScheduler Scheduler = NewThreadScheduler.Default; // CurrentThreadScheduler.Instance;
+        private static readonly YahooSnapshot YahooSnapshot = new YahooSnapshot();
+
+        private static readonly IScheduler Scheduler = NewThreadScheduler.Default;
 
         private static readonly Dictionary<IObserver<object>, (string symbol, string fieldName)> Observers =
             new Dictionary<IObserver<object>, (string symbol, string fieldName)>();
 
-        private static readonly AsyncBlockingCollection<(IObserver<object> observer, string symbol, string fieldName)> ObserversToAdd =
-            new AsyncBlockingCollection<(IObserver<object> observer, string symbol, string fieldName)>();
+        private static readonly BlockingCollection<(IObserver<object> observer, string symbol, string fieldName)> ObserversToAdd =
+            new BlockingCollection<(IObserver<object> observer, string symbol, string fieldName)>();
 
         private static readonly ConcurrentBag<IObserver<object>> ObserversToRemove = new ConcurrentBag<IObserver<object>>();
 
         private static Dictionary<string, Security?> Data = new Dictionary<string, Security?>();
 
         private static int started = 0;
-        private static IDisposable? disposable;
 
         [ExcelFunction(Description = "Yahoo Delayed Quotes")]
         public static IObservable<object> YahooQuote([ExcelArgument("Symbol")] string symbol, [ExcelArgument("Field")] string fieldName)
@@ -41,7 +40,7 @@ namespace YahooXL
             if (string.IsNullOrWhiteSpace(fieldName))
                 fieldName = "RegularMarketPrice";
             bool found = Data.TryGetValue(symbol, out Security? security);
-            object? value = "...";
+            object? value = "~";
             if (found)
             {
                 if (security == null)
@@ -59,7 +58,7 @@ namespace YahooXL
                     ObserversToAdd.Add((observer, symbol, fieldName));
 
                     if (Interlocked.CompareExchange(ref started, 1, 0) == 0)
-                        disposable = Scheduler.ScheduleAsync(RefreshLoop);
+                        Scheduler.ScheduleAsync(RefreshLoop);
                 }
                 catch (Exception e)
                 {
@@ -72,23 +71,27 @@ namespace YahooXL
 
         private static async Task RefreshLoop(IScheduler scheduler, CancellationToken ct)
         {
+            Thread.CurrentThread.IsBackground = true;
             try
             {
                 Debug.WriteLine("starting loop");
                 while (true)
                 {
-                    var wait = TimeSpan.FromSeconds(30);
+                    int wait = 30000; // 30s
                     while (true)
                     {
-                        var (Take, Item) = await ObserversToAdd.TryTakeAsync(wait, ct).ConfigureAwait(false);
-                        if (!Take)
+                        if (!ObserversToAdd.TryTake(out (IObserver<object> observer, string symbol, string fieldName) Item, wait, ct))
                             break;
+                        wait = 1000; // 1s
                         Debug.WriteLine("adding: " + Item.symbol + ", " + Item.fieldName);
                         Observers.Add(Item.observer, (Item.symbol, Item.fieldName));
-                        wait = TimeSpan.FromSeconds(1);
                     }
-                    Debug.WriteLine("updating");
-                    await Update(ct).ConfigureAwait(false);
+
+                    while (ObserversToRemove.TryTake(out IObserver<object> observer))
+                        Observers.Remove(observer);
+
+                    if (Observers.Any())
+                        await Update(ct).ConfigureAwait(false);
                 }
             }
             catch (Exception e)
@@ -98,17 +101,13 @@ namespace YahooXL
             finally
             {
                 Debug.WriteLine("ending");
-                Interlocked.Exchange(ref started, 0);
+                //Interlocked.Exchange(ref started, 0);
             }
         }
 
         private static async Task Update(CancellationToken ct)
         {
-            while (ObserversToRemove.TryTake(out IObserver<object> observer))
-                Observers.Remove(observer);
-
-            if (!Observers.Any())
-                return;
+            Debug.WriteLine("updating");
 
             var symbolGroups = Observers
                 .Select(kvp => (kvp.Value.symbol, kvp.Value.fieldName, kvp.Key))
@@ -117,7 +116,7 @@ namespace YahooXL
 
             var symbols = symbolGroups.Select(g => g.Key).ToList();
 
-            Data = await new YahooSnapshot(ct).GetAsync(symbols).ConfigureAwait(false);
+            Data = await YahooSnapshot.GetAsync(symbols).ConfigureAwait(false);
 
             foreach (var group in symbolGroups)
             {
@@ -128,7 +127,7 @@ namespace YahooXL
                     var fieldName = cell.fieldName;
                     var observer = cell.Key;
                     if (security == null)
-                        observer.OnNext($"Symbol not found: \"{symbol}\".");
+                        observer.OnNext($"Symbol not found: {symbol}.");
                     else if (!security.Fields.TryGetValue(fieldName, out object? value))
                         observer.OnNext(Extensions.GetFieldNameOrNotFound(security, fieldName));
                     else
@@ -141,6 +140,5 @@ namespace YahooXL
                 }
             }
         }
-
     }
 }
