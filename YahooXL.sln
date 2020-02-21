@@ -7,9 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YahooXL", "YahooXL\YahooXL.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{441289DE-27DD-4E48-AA37-B59712FE9E82}"
 	ProjectSection(SolutionItems) = preProject
-		..\..\prg\myProjects\GitHub\YahooXL\appveyor.yml = ..\..\prg\myProjects\GitHub\YahooXL\appveyor.yml
-		..\..\prg\myProjects\GitHub\YahooXL\test.xlsx = ..\..\prg\myProjects\GitHub\YahooXL\test.xlsx
-		..\..\prg\myProjects\GitHub\YahooXL\~notes.txt = ..\..\prg\myProjects\GitHub\YahooXL\~notes.txt
+		appveyor.yml = appveyor.yml
+		test.xlsx = test.xlsx
+		~local\~notes.txt = ~local\~notes.txt
 	EndProjectSection
 EndProject
 Global
