@@ -12,6 +12,8 @@ using YahooQuotesApi;
 using System.Collections.Concurrent;
 using System.Reflection;
 
+#nullable enable
+
 namespace YahooXL
 {
     public static class YahooQuotesAddin

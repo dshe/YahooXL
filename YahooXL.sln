@@ -1,14 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.28705.295
+VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YahooXL", "YahooXL\YahooXL.csproj", "{6B1C2A34-1C5F-486A-9226-BDF67C303500}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YahooXL", "YahooXL\YahooXL.csproj", "{59718F67-C68B-4CF2-A1BC-5C129FB2F74D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9798D1CF-1E55-44AC-A86A-B2D20F7F858D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{441289DE-27DD-4E48-AA37-B59712FE9E82}"
 	ProjectSection(SolutionItems) = preProject
-		appveyor.yml = appveyor.yml
-		~notes.txt = ~notes.txt
+		..\..\prg\myProjects\GitHub\YahooXL\appveyor.yml = ..\..\prg\myProjects\GitHub\YahooXL\appveyor.yml
+		..\..\prg\myProjects\GitHub\YahooXL\test.xlsx = ..\..\prg\myProjects\GitHub\YahooXL\test.xlsx
+		..\..\prg\myProjects\GitHub\YahooXL\~notes.txt = ..\..\prg\myProjects\GitHub\YahooXL\~notes.txt
 	EndProjectSection
 EndProject
 Global
@@ -17,15 +18,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6B1C2A34-1C5F-486A-9226-BDF67C303500}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6B1C2A34-1C5F-486A-9226-BDF67C303500}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6B1C2A34-1C5F-486A-9226-BDF67C303500}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6B1C2A34-1C5F-486A-9226-BDF67C303500}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59718F67-C68B-4CF2-A1BC-5C129FB2F74D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59718F67-C68B-4CF2-A1BC-5C129FB2F74D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59718F67-C68B-4CF2-A1BC-5C129FB2F74D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59718F67-C68B-4CF2-A1BC-5C129FB2F74D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {A8D41024-84FE-4232-BF78-6EF7FFDE8834}
+		SolutionGuid = {7CDA3DF6-61D6-46C3-9AEF-9C01FAEB319F}
 	EndGlobalSection
 EndGlobal

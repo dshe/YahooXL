@@ -1,8 +1,6 @@
 ﻿using System.Linq;
 using YahooQuotesApi;
 
-#nullable enable
-
 namespace YahooXL
 {
     internal static class Extensions

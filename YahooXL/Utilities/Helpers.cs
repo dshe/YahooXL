@@ -1,8 +1,6 @@
 ﻿using ExcelDna.Integration;
 using NodaTime;
 
-#nullable enable
-
 namespace YahooXL
 {
     public static class Helpers
