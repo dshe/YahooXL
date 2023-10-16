@@ -4,13 +4,13 @@
 
 - retrieves quote snapshots
 - fluent interface
+- Dependencies: YahooQuotesApi, ExcelDna, Reactive Extensions, NodaTime
 
-Dependencies: YahooQuotesApi, ExcelDna, Reactive Extensions, NodaTime.
-
-Runtime:
+### Runtime ###
   - Download Package.zip from GitHub releases and extract files to a folder.
   - Double-click on "YahooXL-AddIn64.xll" or "YahooXL-AddIn.xll" to start Excel with 64 or 32-bit YahooXL loaded.
   - Open a blank spreadsheet.
   - Type in a cell: =YahooQuote("C", "RegularMarketPrice")
-  
-  It may be necessary to relax Excel macro and protected view security settings.
+
+### Notes ###
+It may be necessary to relax Excel macro and protected view security settings.

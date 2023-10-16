@@ -7,9 +7,10 @@
   <ExternalLibrary Path="YahooXL.dll" ExplicitRegistration="true" LoadFromBytes="true" Pack="true" />
   
   <!-- The following entries are not required for the normal (unpacked) add-in to work, 
-       but enable the Registration and Rx libraries to be added during packing so that the -packaed.xll works standalone.  -->
+       but enable the Registration and Rx libraries to be added during packing so that the -packed.xll works standalone.  -->
   
   <Reference Path="ExcelDna.Registration.dll" Pack="true" />
   <Reference Path="System.Reactive.dll" Pack="true" />
- 
+  <Reference Path="YahooQuotesApi.dll" Pack="true" />
+
 </DnaLibrary>

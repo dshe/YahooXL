@@ -1,15 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29806.167
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YahooXL", "YahooXL\YahooXL.csproj", "{59718F67-C68B-4CF2-A1BC-5C129FB2F74D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YahooXL", "YahooXL\YahooXL.csproj", "{65FAEB49-7E23-4784-9D16-5EF68E2DAF06}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{441289DE-27DD-4E48-AA37-B59712FE9E82}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{3FCD3FB8-C306-4D09-A25B-5F77F85DBE16}"
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
 		test.xlsx = test.xlsx
-		~local\~notes.txt = ~local\~notes.txt
 	EndProjectSection
 EndProject
 Global
@@ -18,15 +17,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{59718F67-C68B-4CF2-A1BC-5C129FB2F74D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{59718F67-C68B-4CF2-A1BC-5C129FB2F74D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{59718F67-C68B-4CF2-A1BC-5C129FB2F74D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{59718F67-C68B-4CF2-A1BC-5C129FB2F74D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65FAEB49-7E23-4784-9D16-5EF68E2DAF06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65FAEB49-7E23-4784-9D16-5EF68E2DAF06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65FAEB49-7E23-4784-9D16-5EF68E2DAF06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65FAEB49-7E23-4784-9D16-5EF68E2DAF06}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {7CDA3DF6-61D6-46C3-9AEF-9C01FAEB319F}
+		SolutionGuid = {D824F402-D116-4BBB-87C5-CDFE5F52227D}
 	EndGlobalSection
 EndGlobal

@@ -1,19 +1,23 @@
 environment:
-  base_version: '1.0.3'
+  base_version: '0.2.0'
   version_suffix: ''
 version: $(base_version).{build}
-image: Visual Studio 2019
+image: Visual Studio 2022
 configuration: Release
-branches:
-  only:
-  - master
+dotnet_csproj:
+  patch: true
+  file: '**\*.csproj'
+  version: '$(base_version)$(version_suffix)'
+  package_version: '$(base_version)$(version_suffix)'
+  assembly_version: '{version}'
+  file_version: '{version}'
+  informational_version: '$(base_version)$(version_suffix)'
 before_build:
-    - ps: nuget restore .\YahooXL.sln
+- ps: dotnet restore
 build:
-  project: .\YahooXL.sln
   verbosity: minimal
 after_build:
-  - cmd: 7z a Package.zip %APPVEYOR_BUILD_FOLDER%\YahooXL\bin\Release\*.*
+- cmd: 7z a YahooXL-packed.zip %APPVEYOR_BUILD_FOLDER%\YahooXL\bin\Release\*.*
 artifacts:
-- path: Package.zip
-  name: Package
+- path: YahooXL-packed.zip
+  name: YahooXL-packed
