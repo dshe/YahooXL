@@ -14,9 +14,9 @@
   - Open a blank spreadsheet.
   - Type in a cell: = YahooQuote()
   - Type in a cell: = YahooQuote("TSLA", "RegularMarketPrice")
+  - Try opening the file "test.xls", which is located in the solution directory
 
 ### Installation ###
   - Copy "YahooXL-AddIn64.xll" (64 bit) or "YahooXL-AddIn.xll" (32 bit) from GitHub Releases to a folder.
-  - In Excel, [enable the developer tab](https://support.microsoft.com/en-us/office/show-the-developer-tab-e1192344-5e56-4d45-931b-e5fd9bea2d45).
-  - On the developer tab, select "Excel Add-ins". Alternatively, press Alt+t,i to display the list of Excel Add-ins.
-  - Select browse to add the YahooXL to the list.
+  - In Excel, press Alt+t,i to display the list of Excel Add-ins.
+  - Select "Browse" to add the YahooXL add-in to the list.
