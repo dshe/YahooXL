@@ -1,22 +1,32 @@
-﻿using ExcelDna.Integration;
-
-namespace YahooXL;
+﻿namespace YahooXL;
 
 public static class ExcelHelpers
 {
     private static readonly DateTimeZone SystemTimeZone = DateTimeZoneProviders.Tzdb.GetSystemDefault();
 
-    // Default is LocalTime, else use "UTC" or other tzdb name such as "America/New_York".
+    // Default timeZone is system, else use "UTC", "America/New_York"...
     [ExcelFunction(Description = "DateTime Helper")] 
-    public static object UnixSecondsToDateTime(long unixSeconds, string timezoneName = "")
+    public static object UnixSecondsToDateTime(long unixSeconds, string timeZoneName = "")
     {
-        if (unixSeconds < 0)
+        if (unixSeconds <= 0)
             return "Invalid unixSeconds.";
-        Instant instant = Instant.FromUnixTimeSeconds(unixSeconds); // utc
-        DateTimeZone? tz = string.IsNullOrWhiteSpace(timezoneName) ? SystemTimeZone : DateTimeZoneProviders.Tzdb.GetZoneOrNull(timezoneName);
+        Instant instant = Instant.FromUnixTimeSeconds(unixSeconds);
+        DateTimeZone? tz = string.IsNullOrWhiteSpace(timeZoneName) ? SystemTimeZone : DateTimeZoneProviders.Tzdb.GetZoneOrNull(timeZoneName);
         if (tz is null)
-            return $"Invalid timezone: {timezoneName}.";
-        ZonedDateTime zdt = instant.InZone(tz);
-        return zdt.ToDateTimeUnspecified().ToOADate();
+            return $"Invalid timeZone: {timeZoneName}.";
+        return instant.InZone(tz).ToDateTimeUnspecified().ToOADate();
+    }
+
+    // Default timeZone is system, else use "UTC", "America/New_York"...
+    [ExcelFunction(Description = "DateTime Helper")]
+    public static object UnixMillisecondsToDateTime(long unixMilliseconds, string timeZoneName = "")
+    {
+        if (unixMilliseconds <= 0)
+            return "Invalid unixMilliseconds.";
+        Instant instant = Instant.FromUnixTimeMilliseconds(unixMilliseconds);
+        DateTimeZone? tz = string.IsNullOrWhiteSpace(timeZoneName) ? SystemTimeZone : DateTimeZoneProviders.Tzdb.GetZoneOrNull(timeZoneName);
+        if (tz is null)
+            return $"Invalid timeZone: {timeZoneName}.";
+        return instant.InZone(tz).ToDateTimeUnspecified().ToOADate();
     }
 }

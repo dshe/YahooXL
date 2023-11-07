@@ -1,16 +1,23 @@
-﻿using System.Reactive.Concurrency;
+﻿using System.Collections.Concurrent;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using ExcelDna.Integration;
-using System.Collections.Concurrent;
-using System.Reflection;
+using Microsoft.Extensions.Logging;
 
 namespace YahooXL;
 
 public static class YahooQuotesAddin
 {
-    private static readonly List<string> PropertyNames = SecurityPropertyNames.Get();
-    private static readonly YahooQuotesData YahooQuotesData = new();
+    internal static readonly ILogger Logger = LoggerFactory
+        .Create(builder => builder
+            .AddDebug()
+            .AddEventSourceLogger()
+#if DEBUG
+            .SetMinimumLevel(LogLevel.Debug))
+#else
+            .SetMinimumLevel(LogLevel.Warning))
+#endif
+        .CreateLogger("YahooXL");
     private static readonly IScheduler Scheduler = NewThreadScheduler.Default;
     private static readonly Dictionary<IObserver<object>, (string symbol, string property)> Observers = new();
     private static readonly BlockingCollection<(IObserver<object> observer, string symbol, string property)> ObserversToAdd = new();
@@ -21,27 +28,21 @@ public static class YahooQuotesAddin
     [ExcelFunction(Description = "YahooXL: Delayed Quotes")]
     public static IObservable<object> YahooQuote([ExcelArgument("Symbol")] string symbol, [ExcelArgument("Property")] string property)
     {
-        if (string.IsNullOrWhiteSpace(symbol) && string.IsNullOrWhiteSpace(property))
+        Logger.LogDebug("YahooQuote({Symbol}, {Property})", symbol, property);
+        if (string.IsNullOrEmpty(symbol) && string.IsNullOrEmpty(property))
             return Observable.Return(Assembly.GetExecutingAssembly().GetName().ToString());
-        if (string.IsNullOrWhiteSpace(property))
+        if (string.IsNullOrEmpty(property))
             property = "RegularMarketPrice";
-        else if (int.TryParse(property, out int i))
+        else if (!Securities.PropertyExists(property) && int.TryParse(property, out int i))
         {
-            if (i >= 0 && i < PropertyNames.Count)
-                property = PropertyNames[i];
-            else
-                return Observable.Return($"YahooXL: invalid property index: {i}.");
+            string? name = Securities.GetPropertyNameByIndex(i);
+            if (name != null)
+                return Observable.Return(name);
+            if (string.IsNullOrEmpty(symbol))
+                return Observable.Return("YahooXL: Invalid property index.");
         }
-        else if (!PropertyNames.Contains(property, StringComparer.OrdinalIgnoreCase))
-        {
-            string msg = $"YahooXL: invalid property name";
-            if (!property.StartsWith(msg))
-                msg += $": \"{property}\"";
-            return Observable.Return(msg + ".");
-        }
-
         if (string.IsNullOrWhiteSpace(symbol))
-            return Observable.Return(property);
+            return Observable.Return(Securities.PropertyExists(property) ? property : "YahooXL: Unknown property.");
 
         object? value = "~";
 
@@ -50,12 +51,12 @@ public static class YahooQuotesAddin
         {
             if (security is null)
             {
-                string msg = $"YahooXL: symbol not found";
+                string msg = "YahooXL: symbol not found";
                 if (!symbol.StartsWith(msg))
                     msg += $": \"{symbol}\"";
                 return Observable.Return(msg + ".");
             }
-            value = ExcelFormatter.Get(security, property);
+            value = Securities.GetValue(security, property);
         }
 
         return Observable.Create<object>(observer => // executed once
@@ -63,15 +64,13 @@ public static class YahooQuotesAddin
             try
             {
                 observer.OnNext(value ?? "YahooXL: null value.");
-
                 ObserversToAdd.Add((observer, symbol, property));
-
                 if (Interlocked.CompareExchange(ref started, 1, 0) == 0)
                     Scheduler.ScheduleAsync(RefreshLoop);
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e.ToString());
+                Logger.LogError("Could not add observer.", e);
                 observer.OnError(e);
             }
             return Disposable.Create(() => ObserversToRemove.Add(observer));
@@ -83,7 +82,7 @@ public static class YahooQuotesAddin
         Thread.CurrentThread.IsBackground = true;
         try
         {
-            Debug.WriteLine("starting loop");
+            Logger.LogDebug("Loop starting");
             while (true)
             {
                 int wait = 30000; // 30s
@@ -93,15 +92,15 @@ public static class YahooQuotesAddin
                         break;
                     wait = 1000; // 1s
                     Observers.Add(Item.observer, (Item.symbol, Item.property));
-                    Debug.WriteLine("added observer: " + Item.symbol + ", " + Item.property);
+                    Logger.LogTrace("Added observer: {Symbol}, {Property}.", Item.symbol, Item.property);
                 }
 
                 while (ObserversToRemove.TryTake(out IObserver<object>? observer))
                 {
                     Observers.Remove(observer);
-                    Debug.WriteLine("removed observer");
-                    Debug.Flush();
+                    Logger.LogTrace("Removed observer.");
                 }
+                Debug.Flush();
 
                 if (Observers.Any())
                     await Update(ct).ConfigureAwait(false);
@@ -109,28 +108,28 @@ public static class YahooQuotesAddin
         }
         catch (Exception e)
         {
-            Debug.WriteLine(e.ToString());
+            Logger.LogError("Swallowed exception.", e);
         }
         finally
         {
-            Debug.WriteLine("ending");
+            Logger.LogDebug("Loop ending.");
             started = 0;
         }
     }
 
     private static async Task Update(CancellationToken ct)
     {
-        Debug.WriteLine("updating");
+        Logger.LogDebug("Updating.");
 
         var symbolGroups = Observers
             .Select(kvp => (kvp.Value.symbol, kvp.Value.property, kvp.Key))
             .GroupBy(x => x.symbol, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        List<string> symbols = symbolGroups.Select(g => g.Key).ToList();
+        IEnumerable<string> symbols = symbolGroups.Select(g => g.Key);
 
         // Reference assignment is guaranteed to be atomic.
-        Data = await YahooQuotesData.GetSecuritiesAsync(symbols, ct).ConfigureAwait(false);
+        Data = await Yahoo.GetSecuritiesAsync(symbols, ct).ConfigureAwait(false);
 
         foreach (var group in symbolGroups)
         {
@@ -139,17 +138,17 @@ public static class YahooQuotesAddin
             foreach (var cell in group)
             {
                 IObserver<object> observer = cell.Key;
-                if (security is not null)
-                    observer.OnNext(ExcelFormatter.Get(security, cell.property));
-                else
+                if (security is null)
                 {
                     Observers.Remove(observer);
-                    string msg = $"YahooXL: symbol not found";
+                    string msg = "YahooXL: symbol not found";
                     if (!symbol.StartsWith(msg))
-                        msg += ": \"{symbol}\"";
+                        msg += $": \"{symbol}\"";
                     observer.OnNext(msg + ".");
                     observer.OnCompleted();
+                    continue;
                 }
+                observer.OnNext(Securities.GetValue(security, cell.property));
             }
         }
     }

@@ -1,18 +1,26 @@
-﻿namespace YahooXL;
+﻿using Microsoft.Extensions.Logging;
 
-public class YahooQuotesData
+namespace YahooXL;
+
+public static class Yahoo
 {
-    private readonly YahooQuotes YahooQuotes;
+    private static readonly ILogger Logger = LoggerFactory
+        .Create(builder => builder
+            .AddDebug()
+            .AddEventSourceLogger()
+#if DEBUG
+            .SetMinimumLevel(LogLevel.Information))
+#else
+            .SetMinimumLevel(LogLevel.Warning))
+#endif
+        .CreateLogger("YahooFinance");
 
-    public YahooQuotesData()
-    {
-        YahooQuotes = new YahooQuotesBuilder()
-            //.WithLogger(logger)
-            .WithCacheDuration(Duration.FromMinutes(30), Duration.FromHours(6))
-            .WithHistoryStartDate(Instant.FromUtc(1990, 1, 1, 0, 0))
+    private static readonly YahooQuotes YahooQuotes = new YahooQuotesBuilder()
+            .WithLogger(Logger)
             .Build();
-    }
 
-    public async Task<Dictionary<string, Security?>> GetSecuritiesAsync(IEnumerable<string> symbols, CancellationToken ct) =>
-        await YahooQuotes.GetAsync(symbols, Histories.None, "", ct).ConfigureAwait(false);
+    public static async Task<Dictionary<string, Security?>> GetSecuritiesAsync(IEnumerable<string> symbols, CancellationToken ct)
+    {
+        return await YahooQuotes.GetAsync(symbols, Histories.None, "", ct).ConfigureAwait(false);
+    }
 }

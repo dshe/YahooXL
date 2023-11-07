@@ -1,5 +1,4 @@
-﻿using ExcelDna.Integration;
-using ExcelDna.Registration;
+﻿using ExcelDna.Registration;
 
 namespace YahooXL;
 
@@ -15,6 +14,9 @@ public class RtdClockAddIn : IExcelAddIn
 
         ExcelRegistration.GetExcelCommands().RegisterCommands();
 
+        //string xllPath = (string)XlCall.Excel(XlCall.xlGetName);
+        //var xlApp = (Microsoft.Office.Interop.Excel.Application)ExcelDnaUtil.Application;
+        //xlApp.AddIns.Add(xllPath, false /**don't copy file**/).Installed = true;
         //Debug.WriteLine("autoopen");
     }
 
