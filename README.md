@@ -7,7 +7,7 @@
 - Dependencies: [**ExcelDna**](https://excel-dna.net), [YahooQuotesApi](https://github.com/dshe/YahooQuotesApi), Reactive Extensions, NodaTime
 
 ### Runtime ###
-  - Requires [.NET Desktop Runtime 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+  - Requires [.NET Desktop Runtime 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
   - Copy "YahooXL-AddIn64.xll" (64 bit) or "YahooXL-AddIn.xll" (32 bit) from GitHub Releases to a folder.
   - Double-click the file to start Excel with YahooXL loaded.
   - It may be necessary to relax [Excel security settings](https://support.microsoft.com/en-us/office/change-macro-security-settings-in-excel-a97c09d2-c082-46b8-b19f-e8621e8fe373).
