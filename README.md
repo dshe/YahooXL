@@ -8,13 +8,13 @@
 
 ### Runtime ###
   - Requires [.NET Desktop Runtime 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
-  - Copy "YahooXL-AddIn64.xll" (64 bit) or "YahooXL-AddIn.xll" (32 bit) from GitHub Releases to a folder.
+  - Copy "YahooXL-AddIn64-packed.xll" (64 bit) or "YahooXL-AddIn-packed.xll" (32 bit) from GitHub Releases to a folder.
   - Double-click the file to start Excel with YahooXL loaded.
   - It may be necessary to relax [Excel security settings](https://support.microsoft.com/en-us/office/change-macro-security-settings-in-excel-a97c09d2-c082-46b8-b19f-e8621e8fe373).
   - Open a blank spreadsheet.
   - Type in a cell: = YahooQuote()
   - Type in a cell: = YahooQuote("TSLA", "RegularMarketPrice")
-  - Try opening the file "test.xls", which is located in the solution directory.
+  - Try opening the file "Test.xls", located in the solution directory.
 
 ### Installation ###
   - Copy "YahooXL-AddIn64.xll" (64 bit) or "YahooXL-AddIn.xll" (32 bit) from GitHub Releases to a folder.
