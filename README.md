@@ -18,5 +18,5 @@
 
 ### Installation ###
   - Copy "YahooXL-AddIn64.xll" (64 bit) or "YahooXL-AddIn.xll" (32 bit) from GitHub Releases to a folder.
-  - In Excel, press Alt+t,i to display the list of Excel Add-ins.
+  - In Excel, with a sheet open, press Alt+t,i to display the list of Excel Add-ins.
   - Select "Browse" to add the YahooXL add-in to the list.
