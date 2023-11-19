@@ -17,6 +17,6 @@
   - Try opening the file "Test.xls", located in the solution directory.
 
 ### Installation ###
-  - Copy "YahooXL-AddIn64.xll" (64 bit) or "YahooXL-AddIn.xll" (32 bit) from GitHub Releases to a folder.
+  - Download "YahooXL-AddIn64-packed.xll" (64 bit) or "YahooXL-AddIn-packed.xll" (32 bit) from GitHub Releases to a folder.
   - In Excel, with a sheet open, press Alt+t,i to display the list of Excel Add-ins.
   - Select "Browse" to add the YahooXL add-in to the list.
