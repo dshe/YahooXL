@@ -70,7 +70,7 @@ public static class YahooQuotesAddin
             }
             catch (Exception e)
             {
-                Logger.LogError("Could not add observer.", e);
+                Logger.LogError(e, "Could not add observer!");
                 observer.OnError(e);
             }
             return Disposable.Create(() => ObserversToRemove.Add(observer));
@@ -82,7 +82,7 @@ public static class YahooQuotesAddin
         Thread.CurrentThread.IsBackground = true;
         try
         {
-            Logger.LogDebug("Loop starting");
+            Logger.LogDebug("Loop starting.");
             while (true)
             {
                 int wait = 30000; // 30s
@@ -108,7 +108,7 @@ public static class YahooQuotesAddin
         }
         catch (Exception e)
         {
-            Logger.LogError("Swallowed exception.", e);
+            Logger.LogError(e, "Swallowed exception!");
         }
         finally
         {
