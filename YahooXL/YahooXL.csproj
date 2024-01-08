@@ -23,7 +23,7 @@
 	  <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.Logging.EventSource" Version="8.0.0" />
 	  <PackageReference Include="System.Reactive" Version="6.0.0" />
-	  <PackageReference Include="YahooQuotesApi" Version="5.5.1" />
+	  <PackageReference Include="YahooQuotesApi" Version="5.5.5" />
 	</ItemGroup>
 
 </Project>
