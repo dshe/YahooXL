@@ -8,17 +8,8 @@ namespace YahooXL;
 
 public static class YahooQuotesAddin
 {
-    internal static readonly ILogger Logger = LoggerFactory
-        .Create(builder => builder
-            .AddDebug()
-            .AddEventSourceLogger()
-#if DEBUG
-            .SetMinimumLevel(LogLevel.Debug))
-#else
-            .SetMinimumLevel(LogLevel.Warning))
-#endif
-        .CreateLogger("YahooXL");
-    private static readonly IScheduler Scheduler = NewThreadScheduler.Default;
+    internal static ILogger Logger = AddIn.LogFactory.CreateLogger("YahooXL");
+    internal static IDisposable RefreshDisposable = Disposable.Empty;
     private static readonly Dictionary<IObserver<object>, (string symbol, string property)> Observers = new();
     private static readonly BlockingCollection<(IObserver<object> observer, string symbol, string property)> ObserversToAdd = new();
     private static readonly ConcurrentBag<IObserver<object>> ObserversToRemove = new();
@@ -28,9 +19,10 @@ public static class YahooQuotesAddin
     [ExcelFunction(Description = "YahooXL: Delayed Quotes")]
     public static IObservable<object> YahooQuote([ExcelArgument("Symbol")] string symbol, [ExcelArgument("Property")] string property)
     {
-        Logger.LogDebug("YahooQuote({Symbol}, {Property})", symbol, property);
+        //ExcelReference? caller = XlCall.Excel(XlCall.xlfCaller) as ExcelReference;
         if (string.IsNullOrEmpty(symbol) && string.IsNullOrEmpty(property))
             return Observable.Return(Assembly.GetExecutingAssembly().GetName().ToString());
+        Logger.LogDebug("YahooQuote({Symbol}, {Property})", symbol, property);
         if (string.IsNullOrEmpty(property))
             property = "RegularMarketPrice";
         else if (!Securities.PropertyExists(property) && int.TryParse(property, out int i))
@@ -66,7 +58,7 @@ public static class YahooQuotesAddin
                 observer.OnNext(value ?? "YahooXL: null value.");
                 ObserversToAdd.Add((observer, symbol, property));
                 if (Interlocked.CompareExchange(ref started, 1, 0) == 0)
-                    Scheduler.ScheduleAsync(RefreshLoop);
+                    RefreshDisposable = NewThreadScheduler.Default.ScheduleAsync(RefreshLoop);
             }
             catch (Exception e)
             {
@@ -85,12 +77,12 @@ public static class YahooQuotesAddin
             Logger.LogDebug("Loop starting.");
             while (true)
             {
-                int wait = 30000; // 30s
+                int wait = AddIn.Options.RtdIntervalMaxSeconds;
                 while (true)
                 {
-                    if (!ObserversToAdd.TryTake(out (IObserver<object> observer, string symbol, string property) Item, wait, ct))
+                    if (!ObserversToAdd.TryTake(out (IObserver<object> observer, string symbol, string property) Item, wait * 1000, ct))
                         break;
-                    wait = 1000; // 1s
+                    wait = AddIn.Options.RtdIntervalMinSeconds;
                     Observers.Add(Item.observer, (Item.symbol, Item.property));
                     Logger.LogTrace("Added observer: {Symbol}, {Property}.", Item.symbol, Item.property);
                 }
@@ -100,7 +92,6 @@ public static class YahooQuotesAddin
                     Observers.Remove(observer);
                     Logger.LogTrace("Removed observer.");
                 }
-                Debug.Flush();
 
                 if (Observers.Any())
                     await Update(ct).ConfigureAwait(false);
@@ -108,7 +99,7 @@ public static class YahooQuotesAddin
         }
         catch (Exception e)
         {
-            Logger.LogError(e, "Swallowed exception!");
+            Logger.LogError(e, "Unexpected exception!");
         }
         finally
         {
@@ -128,8 +119,16 @@ public static class YahooQuotesAddin
 
         IEnumerable<string> symbols = symbolGroups.Select(g => g.Key);
 
-        // Reference assignment is guaranteed to be atomic.
-        Data = await Yahoo.GetSecuritiesAsync(symbols, ct).ConfigureAwait(false);
+        try
+        {
+            // Reference assignment is guaranteed to be atomic.
+            Data = await YahooFinance.GetSecuritiesAsync(symbols, ct).ConfigureAwait(false);
+        } 
+        catch (Exception e) 
+        {
+            Logger.LogError(e, "Yahoo.Update()");
+            return;
+        }
 
         foreach (var group in symbolGroups)
         {
@@ -146,9 +145,12 @@ public static class YahooQuotesAddin
                         msg += $": \"{symbol}\"";
                     observer.OnNext(msg + ".");
                     observer.OnCompleted();
-                    continue;
                 }
-                observer.OnNext(Securities.GetValue(security, cell.property));
+                else
+                {
+                    observer.OnNext(Securities.GetValue(security, cell.property));
+                    //observer.OnNext(DateTime.Now.ToOADate());
+                }
             }
         }
     }
