@@ -9,9 +9,9 @@
 		<PackageTags>Yahoo Finance Excel RTD</PackageTags>
 		<Description>Yahoo Finance Excel RTD</Description>
 		<Authors>DavidS</Authors>
-		<Version>0.3.3</Version>
-		<AssemblyVersion>0.3.3</AssemblyVersion>
-		<FileVersion>0.3.3</FileVersion>
+		<Version>0.3.4</Version>
+		<AssemblyVersion>0.3.4</AssemblyVersion>
+		<FileVersion>0.3.4</FileVersion>
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 		<DebugType>embedded</DebugType>
 		<DebugSymbols>true</DebugSymbols>
@@ -22,7 +22,7 @@
 	  <PackageReference Include="ExcelDna.Registration" Version="1.7.0" />
 	  <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
 	  <PackageReference Include="System.Reactive" Version="6.0.0" />
-	  <PackageReference Include="YahooQuotesApi" Version="5.5.6" />
+	  <PackageReference Include="YahooQuotesApi" Version="5.5.8" />
 	</ItemGroup>
 
 </Project>
