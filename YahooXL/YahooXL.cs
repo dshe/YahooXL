@@ -10,9 +10,10 @@ public static class YahooQuotesAddin
 {
     internal static ILogger Logger = AddIn.LogFactory.CreateLogger("YahooXL");
     internal static IDisposable RefreshDisposable = Disposable.Empty;
-    private static readonly Dictionary<IObserver<object>, (string symbol, string property)> Observers = new();
-    private static readonly BlockingCollection<(IObserver<object> observer, string symbol, string property)> ObserversToAdd = new();
-    private static readonly ConcurrentBag<IObserver<object>> ObserversToRemove = new();
+    private static readonly Dictionary<IObserver<object>, (string symbol, string property)> Observers = [];
+    private static readonly BlockingCollection<(IObserver<object> observer, string symbol, string property)> ObserversToAdd = [];
+    private static readonly ConcurrentBag<IObserver<object>> concurrentBag = [];
+    private static readonly ConcurrentBag<IObserver<object>> ObserversToRemove = concurrentBag;
     private static Dictionary<string, Security?> Data = new(StringComparer.OrdinalIgnoreCase);
     private static int started = 0;
 
@@ -93,7 +94,7 @@ public static class YahooQuotesAddin
                     Logger.LogTrace("Removed observer.");
                 }
 
-                if (Observers.Any())
+                if (Observers.Count != 0)
                     await Update(ct).ConfigureAwait(false);
             }
         }

@@ -5,7 +5,7 @@ namespace YahooXL;
 
 public static class Securities
 {
-    private static readonly string[] ExcludedProperties = new string[] { "Props", "DividendHistory", "PriceHistory", "PriceHistoryBase", "SplitHistory" };
+    private static readonly string[] ExcludedProperties = ["Props", "DividendHistory", "PriceHistory", "PriceHistoryBase", "SplitHistory"];
 
     private static readonly Lazy<List<string>> PropertyNames = new(() =>
         typeof(Security)

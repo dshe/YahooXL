@@ -53,7 +53,10 @@ public class AddIn : IExcelAddIn
         //string xllPath = (string)XlCall.Excel(XlCall.xlGetName);
         //var xlApp = (Microsoft.Office.Interop.Excel.Application)ExcelDnaUtil.Application;
         //xlApp.AddIns.Add(xllPath, false /**don't copy file**/).Installed = true;
+        
         Logger.LogTrace("Autoopen.");
+
+        //ExcelDna.Logging.LogDisplay.Show();
     }
 
     public void AutoClose()
