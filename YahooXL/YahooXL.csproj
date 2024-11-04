@@ -10,21 +10,22 @@
 		<PackageTags>Yahoo Finance Excel RTD</PackageTags>
 		<Description>Yahoo Finance Excel RTD</Description>
 		<Authors>DavidS</Authors>
-		<Version>1.0.0</Version>
-		<AssemblyVersion>1.0.0</AssemblyVersion>
-		<FileVersion>1.0.0</FileVersion>
+		<Version>1.1.0</Version>
+		<AssemblyVersion>1.1.0</AssemblyVersion>
+		<FileVersion>1.1.0</FileVersion>
 		<DebugType>embedded</DebugType>
 		<DebugSymbols>true</DebugSymbols>
+		<NoWarn>IDE0130</NoWarn>
 		<ExcelAddInExplicitRegistration>true</ExcelAddInExplicitRegistration>		
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="ExcelDna.AddIn" Version="1.8.0" />
 		<PackageReference Include="ExcelDna.Registration" Version="1.8.0" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-		<PackageReference Include="NodaTime" Version="3.1.11" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+		<PackageReference Include="NodaTime" Version="3.2.0" />
 		<PackageReference Include="System.Reactive" Version="6.0.1" />
-		<PackageReference Include="YahooQuotesApi" Version="6.0.0" />
+		<PackageReference Include="YahooQuotesApi" Version="7.0.0" />
 	</ItemGroup>
 
 </Project>

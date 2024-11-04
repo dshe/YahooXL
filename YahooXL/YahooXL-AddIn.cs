@@ -1,7 +1,6 @@
 ﻿using ExcelDna.Registration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-
 namespace YahooXL;
 
 public sealed class Options
@@ -33,10 +32,9 @@ public class AddIn : IExcelAddIn
                 .AddFilter("YahooQuotes", LogLevel.Information)
                 .SetMinimumLevel(LogLevel.Debug));
 
-        Logger = LogFactory.CreateLogger("YahooQuotesAddin");
+        Logger = LogFactory.CreateLogger("YahooXL");
 
-        Logger.LogInformation("ExcelAddin: {Info}", Assembly.GetExecutingAssembly().GetName().ToString());
-        //dynamic app = ExcelDnaUtil.Application;
+        Logger.LogInformation("YahooXL: {Info}", Assembly.GetExecutingAssembly().GetName().ToString());
         //var interval = app.RTD.ThrottleInterval; // default is 2s
     }
 
@@ -45,18 +43,12 @@ public class AddIn : IExcelAddIn
         // Since we have specified ExplicitRegistration=true in the .dna file, we need to do all registration explicitly.
         // Here we only add the async processing, which applies to our IObservable function.
         ExcelRegistration.GetExcelFunctions()
-                         .ProcessAsyncRegistrations()
+                         .ProcessAsyncRegistrations(true)
                          .RegisterFunctions();
 
         ExcelRegistration.GetExcelCommands().RegisterCommands();
 
-        //string xllPath = (string)XlCall.Excel(XlCall.xlGetName);
-        //var xlApp = (Microsoft.Office.Interop.Excel.Application)ExcelDnaUtil.Application;
-        //xlApp.AddIns.Add(xllPath, false /**don't copy file**/).Installed = true;
-        
         Logger.LogTrace("Autoopen.");
-
-        //ExcelDna.Logging.LogDisplay.Show();
     }
 
     public void AutoClose()
