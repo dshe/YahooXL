@@ -1,8 +1,9 @@
-﻿using System.Collections.Concurrent;
+﻿using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using Microsoft.Extensions.Logging;
+using System.Threading.Channels;
 namespace YahooXL;
 
 public static class YahooQuotesAddin
@@ -70,6 +71,16 @@ public static class YahooQuotesAddin
 
     private static async Task RefreshLoop(IScheduler scheduler, CancellationToken ct)
     {
+        var channel = Channel.CreateUnbounded<int>();
+
+        // Producer
+        await channel.Writer.WriteAsync(42);
+
+        // Consumer
+        //int item = await channel.Reader.TryReadAsync();
+        var xx = await channel.Reader.WaitToReadAsync();
+
+
         Thread.CurrentThread.IsBackground = true;
         try
         {
@@ -150,7 +161,7 @@ public static class YahooQuotesAddin
     }
 
     // Observable.Return() sends one value, then completes.
-    // ObservableReturn() sends one value but does not complete. The value will updates each time the worksheet opens.
+    // ObservableReturn() sends one value but does not complete. The value will update each time the worksheet opens.
     internal static IObservable<T> ObservableReturn<T>(T value)
     {
         return Observable.Create<T>(observer =>

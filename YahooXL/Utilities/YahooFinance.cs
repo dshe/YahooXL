@@ -9,15 +9,14 @@ internal static class YahooFinance
     static YahooFinance()
     {
         YahooQuotes = new YahooQuotesBuilder()
-                .WithLogger(AddIn.LogFactory.CreateLogger("YahooQuotes"))
-                .Build();
+            .WithLogger(AddIn.LogFactory.CreateLogger("YahooQuotes"))
+            .Build();
 
-        PropertyNamesList = typeof(Snapshot)
+        PropertyNamesList = [.. typeof(Snapshot)
             .GetProperties()
             .OrderBy(pi => pi.MetadataToken)
             .Select(pi => pi.Name)
-            .Where(name => name != "Properties")
-            .ToList();
+            .Where(name => name != "Properties")];
         
         PropertyNamesHash = new HashSet<string>(PropertyNamesList, StringComparer.OrdinalIgnoreCase);
     }

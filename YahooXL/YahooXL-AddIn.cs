@@ -5,7 +5,7 @@ namespace YahooXL;
 
 public sealed class Options
 {
-    public int RtdIntervalMinSeconds { get; set; } = 3;
+    public int RtdIntervalMinSeconds { get; set; } = 10;
     public int RtdIntervalMaxSeconds { get; set; } = 60;
     public Options()
     {

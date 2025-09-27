@@ -44,7 +44,7 @@ public static class SampleFunctions
 
 #endif
 
-    // Govert: I think the best way to make an RTD server is to make a Rx IObservable,
+    // Govert: I think the best way to make an RTD server is to make an Rx IObservable,
     // and then exposing with or without the Registration helper library.
     // The ExcelDna.Registration extension library, which will automatically generate the
     // wrapper function from your function returning IObservable<T>. However in this case
@@ -55,6 +55,5 @@ public static class SampleFunctions
         return Observable.Timer(dueTime: TimeSpan.Zero, period: TimeSpan.FromSeconds(1))
             .Select(_ => DateTime.Now.ToString("HH:mm:ss"));
     }
-
 
 }

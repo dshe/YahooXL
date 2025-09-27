@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net8.0-windows</TargetFramework>
+
+		<TargetFramework>net9.0-windows8.0</TargetFramework>
 		<OutputType>Library</OutputType>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
@@ -10,22 +11,26 @@
 		<PackageTags>Yahoo Finance Excel RTD</PackageTags>
 		<Description>Yahoo Finance Excel RTD</Description>
 		<Authors>DavidS</Authors>
-		<Version>1.1.0</Version>
-		<AssemblyVersion>1.1.0</AssemblyVersion>
-		<FileVersion>1.1.0</FileVersion>
+		<Version>2.0.0</Version>
+		<AssemblyVersion>2.0.0</AssemblyVersion>
+		<FileVersion>2.0.0</FileVersion>
 		<DebugType>embedded</DebugType>
 		<DebugSymbols>true</DebugSymbols>
 		<NoWarn>IDE0130</NoWarn>
-		<ExcelAddInExplicitRegistration>true</ExcelAddInExplicitRegistration>		
+		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+		<EnableDynamicLoading>true</EnableDynamicLoading>
+		<ExcelAddInExplicitRegistration>true</ExcelAddInExplicitRegistration>
+		<ExcelAddInExplicitExports>true</ExcelAddInExplicitExports>
+		<SupportedOSPlatformVersion>8.0</SupportedOSPlatformVersion>
+		
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="ExcelDna.AddIn" Version="1.8.0" />
-		<PackageReference Include="ExcelDna.Registration" Version="1.8.0" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
-		<PackageReference Include="NodaTime" Version="3.2.0" />
-		<PackageReference Include="System.Reactive" Version="6.0.1" />
-		<PackageReference Include="YahooQuotesApi" Version="7.0.0" />
+		<PackageReference Include="ExcelDna.AddIn" Version="1.9.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
+		<PackageReference Include="NodaTime" Version="3.2.2" />
+		<PackageReference Include="System.Reactive" Version="6.0.2" />
+		<PackageReference Include="YahooQuotesApi" Version="7.0.3" />
 	</ItemGroup>
 
 </Project>
