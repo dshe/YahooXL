@@ -3,7 +3,7 @@
 ***Microsoft Excel add-in which retrieves data from Yahoo Finance***
 
 - retrieves quote snapshots
-- Requires [.NET Desktop Runtime 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- Requires [.NET Desktop Runtime 9.0](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
 - Dependencies: [YahooQuotesApi](https://github.com/dshe/YahooQuotesApi), ExcelDna, NodaTime, Reactive Extensions.
 
 ### Runtime ###
